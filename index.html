@@ -1,0 +1,231 @@
+<!doctype html>
+<html lang="ko">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>원의 성질 챌린지</title>
+<style>
+:root{
+  --bg:#f5f0df; --card:#fffdf7; --ink:#202020; --muted:#6d6659;
+  --accent:#8a3f00; --accent2:#d99a5b; --ok:#13744a; --bad:#b3261e;
+  --line:#ddd2b3; --gold:#b77800; --soft:#efe6cc;
+}
+*{box-sizing:border-box}
+body{margin:0;font-family:"Malgun Gothic","Apple SD Gothic Neo","Noto Sans KR",Arial,sans-serif;background:linear-gradient(180deg,#f8f4e7,#eee5c8);color:var(--ink)}
+button,input{font:inherit}.hidden{display:none!important}
+main{max-width:980px;margin:auto;padding:24px 16px 64px}
+.top{display:flex;align-items:center;justify-content:space-between;gap:12px;flex-wrap:wrap}
+.badge{background:var(--accent);color:#fff;padding:7px 12px;border-radius:999px;font-weight:900}
+h1{font-size:clamp(30px,5vw,48px);margin:14px 0 6px;line-height:1.15}.sub{margin:0 0 20px;color:var(--muted)}
+.card{background:var(--card);border:1px solid var(--line);border-radius:22px;padding:22px;box-shadow:0 10px 28px rgba(93,69,21,.12)}
+.grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(210px,1fr));gap:12px}
+.modecard,.stage,.topic,.choice{background:#fff;color:#111;border:1px solid var(--line);border-radius:16px;padding:16px;text-align:left;cursor:pointer;transition:.16s transform,.16s border-color,.16s box-shadow}
+.modecard:hover,.stage:hover,.topic:hover,.choice:hover{transform:translateY(-2px);border-color:var(--accent);box-shadow:0 6px 16px rgba(95,56,10,.10)}
+.modecard strong,.stage strong,.topic strong{display:block;font-size:19px;margin-bottom:6px;color:#111}.modecard small,.stage small,.topic small{color:var(--muted)}
+.stage .stars{font-size:18px;letter-spacing:2px;margin-top:10px;color:var(--gold)}
+.locked{opacity:.48;cursor:not-allowed}.locked:hover{transform:none;box-shadow:none;border-color:var(--line)}
+.stats{display:flex;gap:9px;align-items:center;flex-wrap:wrap}.pill{background:#fff;border:1px solid var(--line);border-radius:999px;padding:8px 12px;font-weight:800;color:#222}.pill.hot{background:#fff1df;border-color:#e5b57d}.pill.timer{background:#fff8cf;border-color:#ddc15a}.pill.life{background:#fff0ee;border-color:#e3aaa5}
+.progress{height:11px;background:#e8dfc5;border-radius:999px;overflow:hidden;margin:15px 0 22px}.progress i{display:block;height:100%;background:linear-gradient(90deg,var(--accent),#cf7c31);width:0;transition:.25s width}
+.qwrap{position:relative}.q{font-size:clamp(21px,4vw,31px);line-height:1.75;margin:12px 0 20px}.blank{display:inline-block;min-width:105px;border-bottom:3px solid var(--accent);text-align:center;font-weight:900;color:var(--accent);padding:0 5px}
+.choices{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:10px}.choice{font-weight:800;text-align:center;color:#111!important}.choice.selected{outline:3px solid #d8a56e;border-color:var(--accent);background:#fff8ef}.choice.correct{background:#e7f4ec;border-color:#8ec2a4}.choice.wrong{background:#fff0ee;border-color:#e0aaa6}
+input{width:100%;padding:14px;border:2px solid var(--line);border-radius:13px;background:#fff;color:#111;font-size:20px}input:focus{outline:3px solid #ead5b9;border-color:var(--accent)}
+.actions{display:flex;gap:10px;flex-wrap:wrap;margin-top:18px}button.action{border:0;border-radius:13px;padding:12px 18px;cursor:pointer;font-weight:900;background:var(--accent);color:#fff}button.secondary{background:#6d6659;color:#fff;border:0;border-radius:13px;padding:12px 17px;cursor:pointer;font-weight:900}button.ghost{background:#fff;color:#222;border:1px solid var(--line);border-radius:13px;padding:12px 17px;cursor:pointer;font-weight:900}
+.feedback{margin-top:16px;padding:14px;border-radius:13px;font-weight:800;display:none}.feedback.ok{display:block;background:#e7f4ec;color:var(--ok)}.feedback.bad{display:block;background:#fff0ee;color:var(--bad)}
+.small{font-size:14px;color:var(--muted)}.result{text-align:center}.scorebig{font-size:60px;font-weight:1000;color:var(--accent);line-height:1}.starbig{font-size:44px;letter-spacing:5px;color:var(--gold);margin:12px 0}.mission{padding:13px 15px;background:#fff8df;border:1px dashed #d3af4e;border-radius:14px;margin-top:14px;font-weight:800}
+.comboPop{position:absolute;right:8px;top:0;font-weight:1000;color:var(--accent);font-size:22px;opacity:0;transform:scale(.7);pointer-events:none}.comboPop.show{animation:pop .65s ease}@keyframes pop{35%{opacity:1;transform:scale(1.25)}100%{opacity:0;transform:translateY(-24px) scale(1)}}
+.shake{animation:shake .35s linear}@keyframes shake{25%{transform:translateX(-6px)}50%{transform:translateX(6px)}75%{transform:translateX(-4px)}}
+.flash{animation:flash .45s ease}@keyframes flash{50%{box-shadow:0 0 0 7px rgba(19,116,74,.15)}}
+.confetti{position:fixed;inset:0;pointer-events:none;overflow:hidden;z-index:20}.confetti span{position:absolute;top:-20px;font-size:24px;animation:fall 1.2s linear forwards}@keyframes fall{to{transform:translateY(110vh) rotate(520deg);opacity:.25}}
+.bossTag{display:inline-block;padding:6px 10px;border-radius:999px;background:#2f2a22;color:#fff;font-size:13px;font-weight:900;margin-bottom:8px}.bossBox{background:#fbf4df;border:1px solid #d9c486;border-radius:14px;padding:14px;margin-top:12px}.twoInputs{display:grid;grid-template-columns:1fr 1fr;gap:10px}.homeScore{font-weight:900;color:var(--accent)}
+.musicDock{position:fixed;right:16px;bottom:16px;z-index:30;display:flex;gap:8px;align-items:center}.musicBtn{border:1px solid var(--line);background:#fffdf7;color:#222;border-radius:999px;padding:10px 14px;font-weight:900;cursor:pointer;box-shadow:0 6px 18px rgba(75,55,20,.16)}.musicBtn.on{background:#fff1df;border-color:#d59a58;color:var(--accent)}
+@media(max-width:600px){.choices,.twoInputs{grid-template-columns:1fr}.card{padding:17px}.pill{padding:7px 10px;font-size:14px}.musicDock{right:10px;bottom:10px}.musicBtn{padding:9px 11px;font-size:13px}}
+</style>
+</head>
+<body><main>
+<section id="home">
+  <div class="top"><span class="badge">중3 수학</span><span class="homeScore" id="bestLabel">최고점 0</span></div>
+  <h1>원의 성질 챌린지</h1>
+  <p class="sub">선택하고, 직접 쓰고, 콤보를 이어서 스테이지를 클리어하세요.</p>
+  <div class="card">
+    <div class="grid">
+      <button class="modecard" onclick="openStages()"><strong>🏁 스테이지 챌린지</strong><small>4개 단원을 차례로 클리어 · 마지막은 보스 문제</small></button>
+      <button class="modecard" onclick="startTimeAttack()"><strong>⏱ 60초 타임어택</strong><small>60초 동안 최대한 많이 맞히기 · 콤보 보너스</small></button>
+      <button class="modecard" onclick="openFree()"><strong>🎯 자유 연습</strong><small>원하는 영역과 문제 방식을 골라 연습</small></button>
+    </div>
+    <div class="mission" id="dailyMission">오늘의 미션: 5문제 연속 정답에 도전!</div>
+  </div>
+</section>
+
+<section id="stages" class="hidden">
+  <div class="top"><button class="secondary" onclick="goHome()">← 처음으로</button><span class="badge">스테이지 챌린지</span></div>
+  <h1>스테이지 선택</h1><p class="sub">별을 모아 다음 스테이지를 열어 보세요.</p>
+  <div class="card"><div class="grid" id="stageGrid"></div></div>
+</section>
+
+<section id="free" class="hidden">
+  <div class="top"><button class="secondary" onclick="goHome()">← 처음으로</button><span class="badge">자유 연습</span></div>
+  <h1>연습할 영역 선택</h1>
+  <div class="card"><div class="grid">
+    <button class="topic" onclick="chooseFree('원의 현')"><strong>1. 원의 현</strong><small>수직이등분선, 수선, 현의 길이</small></button>
+    <button class="topic" onclick="chooseFree('원의 접선')"><strong>2. 원의 접선</strong><small>한 점에서 그은 두 접선의 길이</small></button>
+    <button class="topic" onclick="chooseFree('원주각의 성질')"><strong>3. 원주각의 성질</strong><small>원주각, 중심각, 호의 관계</small></button>
+    <button class="topic" onclick="chooseFree('접선과 현이 이루는 각')"><strong>4. 접선과 현이 이루는 각</strong><small>접선-현의 각과 원주각의 관계</small></button>
+    <button class="topic" onclick="chooseFree('전체 랜덤 연습')"><strong>★ 전체 랜덤</strong><small>모든 영역을 섞어서 연습</small></button>
+  </div></div>
+</section>
+
+<section id="freeMode" class="hidden">
+  <div class="top"><button class="secondary" onclick="show('free')">← 영역 선택</button><b id="freeTitle"></b></div>
+  <h1>문제 방식 선택</h1>
+  <div class="card"><div class="grid">
+    <button class="modecard" onclick="startFree('choice')"><strong>단어 선택</strong><small>보기에서 정답 고르기</small></button>
+    <button class="modecard" onclick="startFree('input')"><strong>직접 입력</strong><small>스스로 떠올려 쓰기</small></button>
+    <button class="modecard" onclick="startFree('mixed')"><strong>혼합 연습</strong><small>선택형 + 직접 입력형</small></button>
+  </div></div>
+</section>
+
+<section id="quiz" class="hidden">
+  <div class="top"><button class="secondary" onclick="quitQuiz()">← 나가기</button><div class="stats"><span class="pill" id="scorePill">점수 0</span><span class="pill hot" id="comboPill">🔥 0 콤보</span><span class="pill life" id="lifePill">❤️❤️❤️</span><span class="pill timer hidden" id="timerPill">⏱ 60</span></div></div>
+  <div class="progress"><i id="bar"></i></div>
+  <div class="card qwrap" id="qcard">
+    <div class="comboPop" id="comboPop">COMBO!</div>
+    <div class="small" id="kind"></div>
+    <div id="bossTag" class="bossTag hidden">BOSS QUESTION</div>
+    <div class="q" id="question"></div>
+    <div id="answerArea"></div>
+    <div class="feedback" id="feedback"></div>
+    <div class="actions"><button class="action" id="checkBtn" onclick="check()">정답 확인</button><button class="action hidden" id="nextBtn" onclick="next()">다음 문제 →</button></div>
+  </div>
+</section>
+
+<section id="result" class="hidden">
+  <div class="card result">
+    <div class="small" id="resultKicker">챌린지 결과</div>
+    <div class="scorebig" id="finalScore">0</div>
+    <div class="starbig" id="stars"></div>
+    <h2 id="resultTitle"></h2><p id="resultText"></p>
+    <div class="actions" style="justify-content:center"><button class="action" id="retryWrong" onclick="retryWrongOnes()">오답 복수전</button><button class="secondary" onclick="goHome()">처음으로</button></div>
+  </div>
+</section>
+<div class="confetti" id="confetti"></div>
+</main>
+<div class="musicDock"><button class="musicBtn" id="musicBtn" onclick="toggleMusic()">🎵 음악 켜기</button><button class="musicBtn on" id="sfxBtn" onclick="toggleSfx()">🔊 효과음 켜짐</button></div>
+<script>
+const DATA={
+"원의 현":[
+ {s:"원에서 현의 □은 그 원의 중심을 지난다.",a:"수직이등분선",c:["수직이등분선","접선","반지름","원주각"],e:"현의 수직이등분선은 원의 중심을 지납니다."},
+ {s:"원의 중심에서 현에 내린 □은 그 현을 이등분한다.",a:"수선",c:["수선","접선","지름","호"],e:"중심에서 현에 내린 수선은 현을 이등분합니다."},
+ {s:"한 원에서 중심으로부터 같은 거리에 있는 두 현의 □는 같다.",a:"길이",c:["길이","기울기","중점","방향"],e:"중심에서 같은 거리에 있는 현들의 길이는 같습니다."},
+ {s:"한 원에서 길이가 같은 두 현은 원의 중심으로부터 같은 □에 있다.",a:"거리",c:["거리","각도","호","반지름"],e:"길이가 같은 두 현은 중심에서 같은 거리에 있습니다."}
+],
+"원의 접선":[
+ {s:"원 밖의 한 점에서 그 원에 그은 두 □의 길이는 같다.",a:"접선",c:["접선","현","지름","호"],e:"같은 외부점에서 그은 두 접선의 길이는 같습니다."},
+ {s:"점 P에서 원에 그은 두 접선의 접점을 A, B라 하면 PA와 PB의 □는 같다.",a:"길이",c:["길이","방향","각도","중점"],e:"PA = PB입니다."}
+],
+"원주각의 성질":[
+ {s:"원 O에서 호 AB 위에 있지 않은 원 위의 점 P에 대하여 ∠APB를 호 AB에 대한 □이라 한다.",a:"원주각",c:["원주각","중심각","접선","호"],e:"원의 둘레 위의 점을 꼭짓점으로 하는 해당 각을 원주각이라 합니다."},
+ {s:"한 호에 대한 원주각의 크기는 모두 □.",a:"같다",c:["같다","두 배이다","서로 다르다","직각이다"],e:"같은 호를 보는 원주각의 크기는 모두 같습니다."},
+ {s:"한 호에 대한 원주각의 크기는 그 호에 대한 □의 크기의 1/2이다.",a:"중심각",c:["중심각","접선","현","원주각"],e:"원주각 = 중심각 × 1/2 입니다."},
+ {s:"한 원에서 길이가 같은 호에 대한 □의 크기는 같다.",a:"원주각",c:["원주각","반지름","접선","현"],e:"같은 길이의 호를 보는 원주각의 크기는 같습니다."},
+ {s:"한 원에서 크기가 같은 원주각에 대한 호의 □는 같다.",a:"길이",c:["길이","중점","반지름","접선"],e:"같은 크기의 원주각에 대응하는 호의 길이는 같습니다."}
+],
+"접선과 현이 이루는 각":[
+ {s:"원의 접선과 그 접점을 지나는 현이 이루는 각의 크기는 그 각의 내부에 있는 호에 대한 □의 크기와 같다.",a:"원주각",c:["원주각","중심각","직각","접선"],e:"접선과 현이 이루는 각은 그 내부의 호에 대한 원주각과 같습니다."}
+]};
+const STAGES=["원의 현","원의 접선","원주각의 성질","접선과 현이 이루는 각"];
+const BOSS={
+"원의 현":{s:"현의 □은 원의 중심을 지나고, 원의 중심에서 현에 내린 □은 그 현을 이등분한다.",answers:["수직이등분선","수선"],e:"수직이등분선과 수선의 성질을 함께 확인하는 문제입니다."},
+"원의 접선":{s:"원 밖의 한 점에서 원에 그은 두 □의 □는 서로 같다.",answers:["접선","길이"],e:"같은 외부점에서 그은 두 접선의 길이는 같습니다."},
+"원주각의 성질":{s:"한 호에 대한 □의 크기는 그 호에 대한 □의 크기의 1/2이다.",answers:["원주각","중심각"],e:"원주각은 같은 호에 대한 중심각의 절반입니다."},
+"접선과 현이 이루는 각":{s:"원의 접선과 현이 이루는 각의 크기는 그 내부의 호에 대한 □의 크기와 □.",answers:["원주각","같다"],e:"접선과 현이 이루는 각은 해당 원주각과 같습니다."}
+};
+
+const $=id=>document.getElementById(id);
+// 별도 음원 파일 없이 Web Audio API로 만드는 짧은 게임풍 배경음/효과음입니다.
+let audioCtx=null,musicOn=false,sfxOn=true,musicTimer=null,musicStep=0;
+const melody=[261.63,329.63,392.00,329.63,293.66,349.23,440.00,349.23,261.63,329.63,392.00,523.25,440.00,392.00,329.63,293.66];
+function ensureAudio(){if(!audioCtx)audioCtx=new (window.AudioContext||window.webkitAudioContext)();if(audioCtx.state==='suspended')audioCtx.resume()}
+function tone(freq,dur=.12,vol=.035,type='sine',when=0){
+ if(!audioCtx)return;const t=audioCtx.currentTime+when,o=audioCtx.createOscillator(),g=audioCtx.createGain();o.type=type;o.frequency.setValueAtTime(freq,t);g.gain.setValueAtTime(0.0001,t);g.gain.exponentialRampToValueAtTime(vol,t+.015);g.gain.exponentialRampToValueAtTime(0.0001,t+dur);o.connect(g);g.connect(audioCtx.destination);o.start(t);o.stop(t+dur+.03)
+}
+function musicTick(){if(!musicOn)return;ensureAudio();const f=melody[musicStep%melody.length];tone(f,.18,.018,'triangle');if(musicStep%4===0)tone(f/2,.24,.012,'sine');musicStep++}
+function startMusic(){ensureAudio();if(musicTimer)clearInterval(musicTimer);musicOn=true;musicStep=0;musicTick();musicTimer=setInterval(musicTick,300);$('musicBtn').textContent='🎵 음악 끄기';$('musicBtn').classList.add('on');localStorage.setItem('circleMusic','on')}
+function stopMusic(){musicOn=false;if(musicTimer){clearInterval(musicTimer);musicTimer=null}$('musicBtn').textContent='🎵 음악 켜기';$('musicBtn').classList.remove('on');localStorage.setItem('circleMusic','off')}
+function toggleMusic(){musicOn?stopMusic():startMusic()}
+function toggleSfx(){sfxOn=!sfxOn;$('sfxBtn').textContent=sfxOn?'🔊 효과음 켜짐':'🔇 효과음 꺼짐';$('sfxBtn').classList.toggle('on',sfxOn);localStorage.setItem('circleSfx',sfxOn?'on':'off');if(sfxOn){ensureAudio();sfxClick()}}
+function sfxCorrect(){if(!sfxOn)return;ensureAudio();tone(523.25,.10,.05,'sine');tone(659.25,.12,.05,'sine',.09);tone(783.99,.18,.045,'sine',.18)}
+function sfxWrong(){if(!sfxOn)return;ensureAudio();tone(220,.12,.045,'sawtooth');tone(174.61,.18,.035,'sawtooth',.11)}
+function sfxCombo(){if(!sfxOn)return;ensureAudio();tone(659.25,.08,.035,'square');tone(783.99,.08,.035,'square',.07);tone(1046.5,.14,.035,'square',.14)}
+function sfxClick(){if(!sfxOn)return;ensureAudio();tone(440,.07,.018,'sine')}
+function sfxClear(){if(!sfxOn)return;ensureAudio();[523.25,659.25,783.99,1046.5].forEach((f,i)=>tone(f,.18,.045,'triangle',i*.1))}
+
+let gameType='',topic='',mode='mixed',questions=[],idx=0,totalCorrect=0,points=0,combo=0,lives=3,wrong=[],selected='',locked=false,timer=null,timeLeft=60,currentIsBoss=false;
+function show(id){['home','stages','free','freeMode','quiz','result'].forEach(x=>$(x).classList.toggle('hidden',x!==id))}
+function norm(x){return (x||'').replace(/\s/g,'').replace(/[.,。]/g,'')}
+function allPool(){return Object.values(DATA).flat()}
+function shuffle(a){return [...a].sort(()=>Math.random()-.5)}
+function goHome(){stopTimer();updateBestLabel();show('home')}
+function quitQuiz(){stopTimer();goHome()}
+function updateBestLabel(){$('bestLabel').textContent='최고점 '+(localStorage.getItem('circleBest')||0)}
+function openStages(){renderStages();show('stages')}
+function renderStages(){
+ const grid=$('stageGrid'); grid.innerHTML='';
+ STAGES.forEach((name,i)=>{let stars=+(localStorage.getItem('stageStars'+i)||0);let unlocked=i===0 || +(localStorage.getItem('stageStars'+(i-1))||0)>0;let b=document.createElement('button');b.className='stage'+(unlocked?'':' locked');b.innerHTML=`<strong>STAGE ${i+1}. ${name}</strong><small>${i===STAGES.length-1?'최종 스테이지':'혼합 문제 + 보스 문제'}</small><div class="stars">${'★'.repeat(stars)}${'☆'.repeat(3-stars)}</div>`;if(unlocked)b.onclick=()=>startStage(i);grid.appendChild(b)});
+}
+function startStage(i){gameType='stage';topic=STAGES[i];mode='mixed';questions=shuffle(DATA[topic]).map(x=>({...x}));questions.push({...BOSS[topic],boss:true});beginQuiz()}
+function openFree(){show('free')}
+function chooseFree(t){topic=t;$('freeTitle').textContent=t;show('freeMode')}
+function startFree(m){gameType='free';mode=m;questions=shuffle(topic==='전체 랜덤 연습'?allPool():DATA[topic]);beginQuiz()}
+function startTimeAttack(){gameType='time';topic='전체 랜덤 연습';mode='mixed';questions=[];for(let i=0;i<50;i++)questions.push(...shuffle(allPool()));questions=questions.slice(0,50);timeLeft=60;beginQuiz();$('timerPill').classList.remove('hidden');$('timerPill').textContent='⏱ 60';timer=setInterval(()=>{timeLeft--;$('timerPill').textContent='⏱ '+timeLeft;if(timeLeft<=0){stopTimer();finish()}},1000)}
+function beginQuiz(){idx=0;totalCorrect=0;points=0;combo=0;lives=3;wrong=[];selected='';locked=false;$('timerPill').classList.toggle('hidden',gameType!=='time');$('lifePill').classList.toggle('hidden',gameType==='free');show('quiz');render()}
+function render(){
+ if(gameType!=='time' && idx>=questions.length){finish();return}
+ if(gameType==='time' && idx>=questions.length) idx=0;
+ locked=false;selected='';currentIsBoss=!!questions[idx].boss;let q=questions[idx];
+ $('scorePill').textContent='점수 '+points;$('comboPill').textContent='🔥 '+combo+' 콤보';$('lifePill').textContent='❤️'.repeat(Math.max(lives,0))+'♡'.repeat(Math.max(0,3-lives));
+ $('bar').style.width=gameType==='time'?((60-timeLeft)/60*100)+'%':(idx/questions.length*100)+'%';
+ $('kind').textContent=currentIsBoss?'마지막 관문':(mode==='choice'?'단어 선택형':mode==='input'?'직접 입력형':(idx%2?'직접 입력형':'단어 선택형'));
+ $('bossTag').classList.toggle('hidden',!currentIsBoss);
+ $('question').innerHTML=renderBlanks(q.s,currentIsBoss?q.answers.length:1);
+ $('feedback').className='feedback';$('feedback').textContent='';$('nextBtn').classList.add('hidden');$('checkBtn').classList.remove('hidden');
+ let area=$('answerArea');area.innerHTML='';
+ if(currentIsBoss){renderBossInputs(q,area);return}
+ let type=mode==='mixed'?(idx%2?'input':'choice'):mode;
+ if(gameType==='time')type=(idx%2?'input':'choice');
+ if(type==='choice')renderChoices(q,area);else renderInput(area);
+}
+function renderBlanks(s,count){let out=s;for(let i=0;i<count;i++)out=out.replace('□','<span class="blank">□</span>');return out}
+function renderChoices(q,area){let d=document.createElement('div');d.className='choices';shuffle(q.c).forEach(x=>{let b=document.createElement('button');b.className='choice';b.textContent=x;b.onclick=()=>{if(locked)return;[...d.children].forEach(y=>y.classList.remove('selected'));b.classList.add('selected');selected=x};d.appendChild(b)});area.appendChild(d)}
+function renderInput(area){let inp=document.createElement('input');inp.id='inputAns';inp.placeholder='네모칸에 들어갈 말을 입력하세요';inp.autocomplete='off';inp.onkeydown=e=>{if(e.key==='Enter')check()};area.appendChild(inp);setTimeout(()=>inp.focus(),0)}
+function renderBossInputs(q,area){let box=document.createElement('div');box.className='bossBox';box.innerHTML='<b>두 빈칸을 모두 완성하세요.</b>';let d=document.createElement('div');d.className='twoInputs';d.style.marginTop='10px';q.answers.forEach((_,i)=>{let inp=document.createElement('input');inp.id='boss'+i;inp.placeholder=(i+1)+'번째 빈칸';inp.onkeydown=e=>{if(e.key==='Enter')check()};d.appendChild(inp)});box.appendChild(d);area.appendChild(box);setTimeout(()=>$('boss0').focus(),0)}
+function check(){
+ if(locked)return;let q=questions[idx];let ok=false,ans='';
+ if(currentIsBoss){let vals=q.answers.map((_,i)=>$('boss'+i).value);if(vals.some(v=>!v)){feedback(false,'두 빈칸을 모두 입력해 주세요.',true);return}ok=vals.every((v,i)=>norm(v)===norm(q.answers[i]));ans=vals.join(' / ')}
+ else {ans=$('inputAns')?$('inputAns').value:selected;if(!ans){feedback(false,'답을 선택하거나 입력해 주세요.',true);return}ok=norm(ans)===norm(q.a)}
+ locked=true;
+ if(ok){totalCorrect++;combo++;let gain=100+Math.min(combo,10)*10+(currentIsBoss?200:0);points+=gain;sfxCorrect();feedback(true,`✓ 정답! +${gain}점 · ${q.e}`);celebrate(combo);$('qcard').classList.add('flash');setTimeout(()=>$('qcard').classList.remove('flash'),450)}
+ else {combo=0;lives--;wrong.push(q);sfxWrong();let correct=currentIsBoss?q.answers.join(' / '):q.a;feedback(false,`정답은 <b>${correct}</b>입니다. ${q.e}`);$('qcard').classList.add('shake');setTimeout(()=>$('qcard').classList.remove('shake'),350)}
+ $('scorePill').textContent='점수 '+points;$('comboPill').textContent='🔥 '+combo+' 콤보';$('lifePill').textContent='❤️'.repeat(Math.max(lives,0))+'♡'.repeat(Math.max(0,3-lives));$('checkBtn').classList.add('hidden');$('nextBtn').classList.remove('hidden');
+ if(gameType==='time')setTimeout(()=>{if(!$('quiz').classList.contains('hidden'))next()},650);
+ if(gameType==='stage'&&lives<=0)setTimeout(()=>finish(true),500);
+}
+function feedback(ok,msg,soft=false){$('feedback').className='feedback '+(ok?'ok':'bad');$('feedback').innerHTML=msg;if(soft){$('feedback').style.display='block';setTimeout(()=>{$('feedback').style.display=''},900)}}
+function next(){if(!locked)return;idx++;render()}
+function celebrate(c){if(c>=3){if(c===3||c%5===0)sfxCombo();$('comboPop').textContent=c+' COMBO!';$('comboPop').classList.remove('show');void $('comboPop').offsetWidth;$('comboPop').classList.add('show')}if(c>0&&c%5===0)confetti(18)}
+function confetti(n=28){let box=$('confetti');box.innerHTML='';let marks=['★','◆','●','▲'];for(let i=0;i<n;i++){let s=document.createElement('span');s.textContent=marks[i%marks.length];s.style.left=(Math.random()*100)+'vw';s.style.animationDelay=(Math.random()*.35)+'s';box.appendChild(s)}setTimeout(()=>box.innerHTML='',1600)}
+function finish(failed=false){
+ stopTimer();show('result');let attempted=gameType==='time'?Math.max(idx+(locked?1:0),1):questions.length;let acc=gameType==='time'?Math.round(totalCorrect/attempted*100):Math.round(totalCorrect/questions.length*100);let starCount=acc>=90?3:acc>=70?2:1;if(failed)starCount=0;
+ $('finalScore').textContent=points+'점';$('stars').textContent='★'.repeat(starCount)+'☆'.repeat(3-starCount);
+ if(gameType==='stage'){
+   let si=STAGES.indexOf(topic),old=+(localStorage.getItem('stageStars'+si)||0);if(!failed&&starCount>old)localStorage.setItem('stageStars'+si,starCount);
+   $('resultKicker').textContent='STAGE '+(si+1)+' 결과';$('resultTitle').textContent=failed?'하트가 모두 소진됐어요':'스테이지 클리어!';$('resultText').textContent=failed?'오답 복수전으로 헷갈린 개념을 정리하고 다시 도전해 보세요.':`정확도 ${acc}% · ${totalCorrect}/${questions.length}문제 정답`;
+ } else if(gameType==='time'){$('resultKicker').textContent='60초 타임어택';$('resultTitle').textContent='타임 오버!';$('resultText').textContent=`60초 동안 ${totalCorrect}문제를 맞혔어요. 최고 콤보에 다시 도전해 보세요.`}
+ else {$('resultKicker').textContent='자유 연습 결과';$('resultTitle').textContent=acc===100?'퍼펙트!':'연습 완료';$('resultText').textContent=`정확도 ${acc}% · ${totalCorrect}/${questions.length}문제 정답`}
+ let best=+(localStorage.getItem('circleBest')||0);if(points>best)localStorage.setItem('circleBest',points);$('retryWrong').classList.toggle('hidden',wrong.length===0);if(!failed&&starCount>=2){confetti(36);sfxClear()}
+}
+function retryWrongOnes(){if(!wrong.length)return;gameType='free';mode='mixed';questions=wrong.map(x=>x.boss?{...x}:({...x}));idx=0;totalCorrect=0;points=0;combo=0;lives=3;wrong=[];show('quiz');$('timerPill').classList.add('hidden');$('lifePill').classList.add('hidden');render()}
+function stopTimer(){if(timer){clearInterval(timer);timer=null}}
+sfxOn=localStorage.getItem('circleSfx')!=='off';$('sfxBtn').textContent=sfxOn?'🔊 효과음 켜짐':'🔇 효과음 꺼짐';$('sfxBtn').classList.toggle('on',sfxOn);
+// 브라우저의 자동재생 제한 때문에 배경음은 사용자가 버튼을 눌러 시작합니다.
+updateBestLabel();
+</script></body></html>
